@@ -7,8 +7,11 @@ import Login from "./components/Login";
 import Register from "./components/Register";
 import Upload from "./components/Upload";
 
+import { AuthProvider } from "./context/AuthContext";
+
 function App() {
     return (
+        <AuthProvider>
             <Router>
                 <Routes>
                     <Route path="/" element={<Home />} />
@@ -20,6 +23,7 @@ function App() {
                     />
                 </Routes>
             </Router>
+        </AuthProvider>
     );
 }
 

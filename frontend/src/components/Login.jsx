@@ -8,15 +8,32 @@ const Login = () => {
       const [password, setPassword] = useState("");
       const navigate = useNavigate();
   
-      const handleLogin = async () => {
-          try {
-              const res = await axios.post("/api/v1/users/register", { email, password });
-              localStorage.setItem("token", res.data.token);
-              navigate("/dashboard");
-          } catch (err) {
-              alert("Login failed: " + err);
-          }
-      };
+      const handleLogin = async (event) => {
+        event.preventDefault();
+        try {
+            // Send login request to the server
+            const res = await axios.post("/api/v1/users/login", { email, password });
+    
+            if (res.status === 200) {
+                alert("Login successful!");
+                localStorage.setItem("token", res.data.data.user.accessToken);
+                navigate("/dashboard");
+            }
+        } catch (err) {
+            if (err.response) {
+                const status = err.response.status;
+                if (status === 401) alert("Invalid credentials. Please try again.");
+                else if (status === 404) alert("User not found. Please register.");
+                else if (status === 400) alert("Bad Request. Please check the provided data.");
+                else if (status === 500) alert("Server error. Please try again later.");
+                else alert("Unexpected error: " + (err.response.data?.message || "Unknown error"));
+            } else {
+                alert("Login failed: " + err.message);
+            }
+    
+            console.error("Login Error Details:", err.response?.data || err.message);
+        }
+    };
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100">
       <div className="w-full max-w-md p-8 space-y-6 bg-white rounded-lg shadow-lg">
@@ -29,7 +46,7 @@ const Login = () => {
             <input
               type="email"
               placeholder="Enter email address"
-              value={password}
+              value={email}
               id="email"
               name="email"
               required
@@ -72,7 +89,6 @@ const Login = () => {
           </div>
           <div>
             <button
-              type="submit"
               onClick={handleLogin}
               className="w-full px-4 py-2 text-white bg-blue-600 rounded-md hover:bg-blue-700"
             >

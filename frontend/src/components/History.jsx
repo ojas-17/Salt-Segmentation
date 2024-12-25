@@ -17,10 +17,11 @@ function History() {
         setLoading(true);
 
         try {
-            const res = await axios.get(`/history/${location}`, {
+            const res = await axios.get(`api/v1/images/${location}`, {
                 headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
             });
-            setHistory(res.data);
+            console.log(res.data);
+            setHistory(res.data.message.images);           
         } catch (err) {
             setError("Failed to fetch history: " + err.response?.data?.error);
         } finally {
@@ -66,7 +67,7 @@ function History() {
                                     <div className="flex justify-between mt-4">
                                         <div className="flex flex-col items-center">
                                             <img
-                                                src={`http://localhost:5000${item.imagePath}`}
+                                                src={item.imagePath}
                                                 alt="Uploaded"
                                                 className="max-w-[200px] h-auto rounded-md shadow-md mb-2"
                                             />
@@ -74,7 +75,7 @@ function History() {
                                         </div>
                                         <div className="flex flex-col items-center">
                                             <img
-                                                src={`http://localhost:5000${item.maskPath}`}
+                                                src={item.maskPath}
                                                 alt="Predicted Mask"
                                                 className="max-w-[200px] h-auto rounded-md shadow-md mb-2"
                                             />

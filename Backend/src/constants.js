@@ -1,1 +1,1 @@
-export const DB_NAME = "major-projDB";
+export const DB_NAME = "Salt";

@@ -17,10 +17,6 @@ const Register = () => {
         setShowPassword(!showPassword);
     };
 
-    const handleInputChange = (e) => {
-        console.log(`${e.target.name}: ${e.target.value}`);
-    };
-
     const handleRegister = async (e) => {
         e.preventDefault();  // Prevent the form from submitting the traditional way
         
@@ -33,19 +29,34 @@ const Register = () => {
 
         try {
             // Send the form data to the server
-            await axios.post("/api/v1/users/register", {
-                firstName,
-                lastName,
+            const res = await axios.post("/api/v1/users/register", {
+                fullname: `${firstName} ${lastName}`,
                 email,
+                username: email,
                 password,
-                country
+                country,
             });
-            alert("Registration successful! Please log in.");
-            navigate("/login");
+        
+            if (res.status === 201) {
+                alert("Registration successful");
+                navigate("/login");
+            }
         } catch (err) {
-            console.log(err);
-            alert("Registration failed: " + err);
+            // Handle errors based on the response status
+            if (err.response) {
+                const status = err.response.status;
+                if (status === 409) {
+                    alert("User with this email already exists");
+                    navigate("/login");
+                }
+                else if (status === 400) alert("All fields are required");
+                else if (status === 500) alert("Failed to create user");
+                else alert("Unexpected error: " + err.response.data?.message || "Unknown error");
+            } else {
+                alert("Registration failed: " + err.message);
+            }
         }
+        
     };
 
     return (
@@ -86,7 +97,6 @@ const Register = () => {
                                 type="text"
                                 placeholder="First name"
                                 ref={firstNameRef}
-                                onChange={handleInputChange}
                                 className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring focus:ring-blue-200"
                                 required
                             />
@@ -105,7 +115,6 @@ const Register = () => {
                                 type="text"
                                 placeholder="Last name"
                                 ref={lastNameRef}
-                                onChange={handleInputChange}
                                 className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring focus:ring-blue-200"
                             />
                         </div>
@@ -123,7 +132,6 @@ const Register = () => {
                                 type="email"
                                 placeholder="Email address"
                                 ref={emailRef}
-                                onChange={handleInputChange}
                                 className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring focus:ring-blue-200"
                                 required
                             />
@@ -142,7 +150,6 @@ const Register = () => {
                                 type={showPassword ? "text" : "password"}
                                 placeholder="Password (8 or more characters)"
                                 ref={passwordRef}
-                                onChange={handleInputChange}
                                 className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring focus:ring-blue-200"
                                 required
                             />
@@ -164,7 +171,6 @@ const Register = () => {
                                 id="country"
                                 name="country"
                                 ref={countryRef}
-                                onChange={handleInputChange}
                                 className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring focus:ring-blue-200"
                                 required
                             >

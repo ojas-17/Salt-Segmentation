@@ -22,9 +22,10 @@ function Upload() {
         formData.append("location", location);
 
         try {
-            const res = await axios.post("/upload", formData, {
+            const res = await axios.post("api/v1/images", formData, {
                 headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
             });
+            console.log(res.data);
             setOutput(res.data);
         } catch (err) {
             setError("Upload failed: " + err.response?.data?.error);
@@ -76,14 +77,14 @@ function Upload() {
                         <div className="grid grid-cols-1 gap-4">
                             <div className="flex justify-center">
                                 <img
-                                    src={`http://localhost:5000${output.imagePath}`}
+                                    src={output.message.imagePath}
                                     alt="Uploaded"
                                     className="max-w-full h-auto rounded-md shadow-md"
                                 />
                             </div>
                             <div className="flex justify-center">
                                 <img
-                                    src={`http://localhost:5000${output.maskPath}`}
+                                    src={output.message.maskPath}
                                     alt="Predicted Mask"
                                     className="max-w-full h-auto rounded-md shadow-md"
                                 />

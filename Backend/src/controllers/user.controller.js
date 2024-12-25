@@ -1,13 +1,12 @@
 import { asyncHandler } from '../utils/asyncHandler.js';
 import { ApiError } from '../utils/ApiError.js';
 import { ApiResponse } from '../utils/ApiResponse.js';
-
 import User from '../models/user.model.js';
 
 const register = asyncHandler(async (req, res, _) => {
     
     const {fullname, email, username, password} = req.body;
-
+    
     if ( [fullname, email, username, password].some((field) => field === undefined || field.trim() === "") ) {
         throw new ApiError(400, "All fields are required");
     }
@@ -38,6 +37,8 @@ const register = asyncHandler(async (req, res, _) => {
 
 const login = asyncHandler(async (req, res, _) => {
     const {email,username, password} = req.body;
+    console.log(email,username,password);
+    
     if ( !username && !email ) throw new ApiError(400, "Please provide email or username");
     if ( !password ) throw new ApiError(400, "Please provide password");
 
@@ -46,11 +47,9 @@ const login = asyncHandler(async (req, res, _) => {
 
     const isPasswordCorrect = await user.verifyPassword(password);
     if (!isPasswordCorrect) throw new ApiError(401, "Invalid credentials");
-
+    
     const accessToken = await user.generateAccessToken();
-
     const loggedinUser = await User.findById(user._id).select("-password");
-
     const options = {
         httpOnly: true,
         secure: true
@@ -58,7 +57,7 @@ const login = asyncHandler(async (req, res, _) => {
     return res
     .status(200)
     .cookie("accessToken", accessToken, options)
-    .json(new ApiResponse(200, "User logged in successfully", {user :{loggedinUser,accessToken}}));
+    .json(new ApiResponse(200, "User logged in successfully", {user :{loggedinUser, accessToken}}));
 });
 
 export { register, login };
